@@ -11,6 +11,7 @@
     <script src="js/three.js"></script>    
     <script src="js/loaders/ColladaLoader.js"></script>  
     <script src="js/controls/OrbitControls.js"></script>  
+    <script src="js/mio/Objeto3D.js"></script>  
 
     <style>
         #display{
@@ -324,9 +325,9 @@
             }); 
             
             controls.update();
-/*
+            /*
             sol = new THREE.Mesh(new THREE.SphereGeometry( 15, 32, 32 ), materiales["sol"] );
-*/
+            */
             sol = modelos["sol.dae"];
             sol.material=materiales["sol"]
 
@@ -400,9 +401,87 @@
             *********************************************************************************
             */
 
+            let vuelta_tierra = 360;
+            let vuelta_luna = vuelta_tierra / 30;
+            let vuelta_iss = vuelta_tierra / 20;
+            let dist_tierra_sol = 120;
+            let dist_luna_tierra = 60;
+            let dist_iss_tierra = 20;
+
+            objApollo = new Objeto3D(apollo);
+            objLuna = new Objeto3D(luna, null);
+            objTierra = new Objeto3D(tierra);
+            objIss = new Objeto3D(iss);
+
+            objSistemaLuna = new Objeto3D(null, [objLuna, objApollo]);
+            objSistemaTierra = new Objeto3D(null, [objSistemaLuna, objTierra, objIss]);
+            objSistemaSolar = new Objeto3D(null, [objSistemaTierra]);
+
+            //rotacion del sistema tierra respecto del sol
+            objSistemaTierra.setRotation([tiempo, [0, 1, 0]]);
+            objSistemaTierra.updateRotation();
+
+            //distancia sistema tierra al sol
+            objSistemaTierra.setPosition([dist_tierra_sol,0,0]);
+            objSistemaTierra.updatePosition();
+
+            // correccion para que los 23 grados sean correctos
+            objSistemaTierra.setRotation([-tiempo, [0, 1, 0]]);
+            objSistemaTierra.updateRotation();
+
+            //inclinacion de 23 grados
+            objTierra.setRotation([23  * (Math.PI/180), [0, 0, 1]]);
+            objTierra.updateRotation();
+
+            //rotacion de la tierra sobre su propio eje
+            objTierra.setRotation([tiempo*vuelta_tierra, [0, 1, 0]]);
+            objTierra.updateRotation();
+
+            // posicion del sistema luna respecto del sistema tierra
+            objSistemaLuna.setRotation([tiempo*vuelta_luna, [0, 1, 0]]);
+            objSistemaLuna.updateRotation();
+            
+            objSistemaLuna.setPosition([0,0,40]);
+            objSistemaLuna.updatePosition();
+             
+            // posicion del ISS respecto del sistema tierra
+            objIss.setRotation([tiempo*vuelta_iss, [0, 0, 1]]);
+            objIss.updateRotation();
+            objIss.setPosition([25,0,0]);
+            objIss.updatePosition();
+            objIss.setRotation([-Math.PI/2, [0, 1, 0]]);
+
+            objIss.updateRotation();
+            objIss.setRotation([-Math.PI/6, [1, 0, 0]]);
+            objIss.updateRotation();
+
+            // posicion del apolo respecto del sistema luna
+            objApollo.setRotation([-Math.PI/2, [0, 1, 0]]);
+            objApollo.updateRotation();
+            objApollo.setRotation([Math.PI/4, [0, 0, 1]]);
+            objApollo.updateRotation();
+            objApollo.setPosition([2.05,0,0]);
+            objApollo.updatePosition();
+            objApollo.setRotation([-Math.PI/2, [0, 0, 1]]);
+            objApollo.updateRotation();
+
+
+            objSistemaSolar.draw();
+
+
+
+/*
+
+
             // tierra
-            m1=mat4.create(); 
-            mat4.translate(m1,m1,[60,0,0]);    
+            m1=mat4.create();
+            //rotacion del sistema tierra respecto del sol
+            // primero hay que poner a rotar antes de trasladar!! si no no anda
+            mat4.rotate( m1, m1, tiempo, [0, 1, 0] ); 
+            // distancia de la tierra al sol, ahora deberia estar rotando alrededor del sol
+            mat4.translate(m1,m1,[60,0,0]);
+            // rotacion de la tierra sobre su propio eje
+            mat4.rotate( m1, m1, 360*tiempo, [0, 1, 0] );
             setTransform(tierra,m1);
   
             // luna
@@ -418,7 +497,7 @@
             // iss
             m4=mat4.create(); 
             mat4.translate(m4,m4,[130,0,0]);            
-            setTransform(iss,m4);  
+            setTransform(iss,m4); */ 
 
 
             // *********************************************************************************************
